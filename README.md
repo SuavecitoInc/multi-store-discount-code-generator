@@ -46,6 +46,10 @@
    ```bash
    npm run setup
    ```
+   If required run this command to stop the config files from being tracked.
+   ```bash
+   git update-index --skip-worktree config/admin.json config/discounts.json
+   ```
 7. Run the tool to generate new discount codes:
    ```bash
    npm run create
