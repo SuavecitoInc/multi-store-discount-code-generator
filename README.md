@@ -16,8 +16,8 @@
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
-   cd create-discount-codes
+   git clone git@github.com:SuavecitoInc/multi-store-discount-code-generator.git
+   cd multi-store-discount-code-generator
    ```
 2. Install dependencies:
    ```bash
