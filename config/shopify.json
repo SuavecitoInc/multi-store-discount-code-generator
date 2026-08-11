@@ -1,0 +1,8 @@
+{
+  "stores": [
+    {
+      "handle": "store-1",
+      "collectionId": "gid://shopify/Collection/12345678910"
+    }
+  ]
+}
