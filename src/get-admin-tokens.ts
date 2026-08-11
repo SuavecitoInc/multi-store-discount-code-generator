@@ -71,10 +71,10 @@ async function main() {
   }
 
   const fs = await import('fs');
-  fs.writeFileSync('./config.json', JSON.stringify(results, null, 2));
+  fs.writeFileSync('./config/admin.json', JSON.stringify(results, null, 2));
 
   console.log(
-    "\nSaved to ./config.json -- add this file to .gitignore now if you haven't.",
+    "\nSaved to ./config/admin.json -- add this file to .gitignore now if you haven't.",
   );
   console.log(
     'Copy these into your STORE_A_ADMIN_TOKEN / STORE_B_ADMIN_TOKEN env vars, then delete the file.',

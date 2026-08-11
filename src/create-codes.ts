@@ -149,7 +149,12 @@ async function main() {
 
   if (!USE_SINGLE_STORE) {
     console.log('Adding codes to Store B...');
-    await addAllCodes(STORE_B_DOMAIN, STORE_B_ADMIN_TOKEN, discountIdB, codes);
+    await addAllCodes(
+      STORE_B_DOMAIN,
+      STORE_B_ADMIN_TOKEN,
+      discountIdB as string,
+      codes,
+    );
   }
 
   codes.forEach((c) => ledger.add(c));

@@ -5,19 +5,20 @@ import fetch from 'node-fetch';
 import { bulkStatusQuery } from './admin/queries';
 import { bulkAddDiscountMutation } from './admin/mutations';
 import { API_VERSION, LEDGER_PATH, BATCH_SIZE } from './const';
-import config from '../../config/admin.json';
+import admin from '../../config/admin.json';
+import type { AdminConfig } from './types/config';
 
 export function validateConfig() {
-  const requiredVars = [
-    'STORE_A_DOMAIN',
-    'STORE_B_DOMAIN',
-    'STORE_A_ADMIN_TOKEN',
-    'STORE_B_ADMIN_TOKEN',
-  ];
+  const requiredVars = ['domain', 'accessToken'];
+
+  const adminConfig: AdminConfig = admin;
 
   // Check if all required variables are present in the config
   for (const varName of requiredVars) {
-    if (!config.STORE_A[varName] && !config.STORE_B[varName]) {
+    if (
+      !adminConfig.STORE_A[varName as keyof typeof adminConfig.STORE_A] &&
+      !adminConfig.STORE_B[varName as keyof typeof adminConfig.STORE_B]
+    ) {
       throw new Error(`Missing required config variable: ${varName}`);
     }
   }
