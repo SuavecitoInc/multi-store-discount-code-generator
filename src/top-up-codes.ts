@@ -55,7 +55,7 @@ async function main() {
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const csvPath = `./output/klaviyo-topup-${timestamp}.csv`;
-  fs.writeFileSync(csvPath, 'code\n' + newCodes.join('\n'));
+  fs.writeFileSync(csvPath, 'Coupon\n' + newCodes.join('\n'));
 
   console.log(
     `Done. ${newCodes.length} new codes added ${

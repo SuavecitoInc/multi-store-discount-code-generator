@@ -19,7 +19,7 @@ const discountConfig: DiscountConfig = discount;
 export const STORE_A_DISCOUNT_ID = discountConfig.storeADiscountId;
 export const STORE_B_DISCOUNT_ID = discountConfig.storeBDiscountId;
 
-export const TOTAL_CODES = 1_000; // 10_000
+export const TOTAL_CODES = 10; // 10_000
 export const CODE_PREFIX = 'SUAVE15'; // adjust per campaign
 export const BATCH_SIZE = 100;
 export const API_VERSION = '2026-07';

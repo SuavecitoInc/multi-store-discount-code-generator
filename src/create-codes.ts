@@ -83,6 +83,65 @@ async function createParentDiscount(
   return data.discountCodeBasicCreate.codeDiscountNode.id; // gid://shopify/DiscountCodeNode/...
 }
 
+async function createParentDiscountV2(
+  domain: string,
+  token: string,
+  config: DiscountConfig,
+  collectionId?: string,
+): Promise<string> {
+  const items = collectionId
+    ? { collections: { add: [collectionId] } }
+    : { all: true };
+
+  console.log(
+    `Creating parent discount on ${domain} with items: ${JSON.stringify(
+      items,
+    )}`,
+  );
+
+  const customerGets = config.percentageOff
+    ? { value: { percentage: config.percentageOff }, items: items }
+    : {
+        value: {
+          discountAmount: {
+            amount: config.fixedAmountOff,
+            appliesOnEachItem: false,
+          },
+        },
+        items: items,
+      };
+
+  const variables = {
+    basicCodeDiscount: {
+      title: config.title,
+      // Placeholder code required by the mutation even though we add real
+      // codes via bulk-add afterward -- pick something clearly non-customer-facing.
+      code: `${config.title.replace(/\s+/g, '-').toUpperCase()}-PARENT`,
+      startsAt: config.startsAt,
+      endsAt: config.endsAt,
+      usageLimit: config.usageLimit,
+      appliesOncePerCustomer: config.appliesOncePerCustomer,
+      customerSelection: { all: true },
+      customerGets,
+      combinesWith: config.combinesWith,
+    },
+  };
+
+  const data = await shopifyAdminGraphQL(
+    domain,
+    token,
+    createParentDiscountMutation,
+    variables,
+  );
+  const errors = data.discountCodeBasicCreate.userErrors;
+  if (errors?.length) {
+    throw new Error(
+      `Parent discount create failed on ${domain}: ${JSON.stringify(errors)}`,
+    );
+  }
+  return data.discountCodeBasicCreate.codeDiscountNode.id; // gid://shopify/DiscountCodeNode/...
+}
+
 async function main() {
   validateConfig();
 
@@ -99,7 +158,7 @@ async function main() {
   // create title in the follwoing format: "Campaign Name - YYYY-MM-DD"
 
   const config: DiscountConfig = {
-    title: `SUAVE15 - ${new Date().toISOString().split('T')[0]}`,
+    title: `SUAVE15-${new Date().toISOString().split('T')[0]}`,
     percentageOff: 0.15,
     usageLimit: 1,
     appliesOncePerCustomer: true,
@@ -113,20 +172,22 @@ async function main() {
   };
 
   console.log('Creating parent discount on Store A...');
-  const discountIdA = await createParentDiscount(
+  const discountIdA = await createParentDiscountV2(
     STORE_A_DOMAIN,
     STORE_A_ADMIN_TOKEN,
     config,
+    'gid://shopify/Collection/286084694099',
   );
   console.log(`Store A parent discount: ${discountIdA}`);
 
   let discountIdB: string | null = null;
   if (!USE_SINGLE_STORE) {
     console.log('Creating parent discount on Store B...');
-    discountIdB = await createParentDiscount(
+    discountIdB = await createParentDiscountV2(
       STORE_B_DOMAIN,
       STORE_B_ADMIN_TOKEN,
       config,
+      'gid://shopify/Collection/324726358165',
     );
     console.log(`Store B parent discount: ${discountIdB}`);
   }
@@ -161,7 +222,7 @@ async function main() {
   saveLedger(ledger);
 
   console.log('Writing CSV for Klaviyo upload...');
-  const csv = 'code\n' + codes.join('\n');
+  const csv = 'Coupon\n' + codes.join('\n');
   fs.writeFileSync('./output/klaviyo-coupon-feed.csv', csv);
 
   console.log(
