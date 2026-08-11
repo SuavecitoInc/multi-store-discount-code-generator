@@ -59,8 +59,5 @@ tmbootpicker.efi
 # Node
 node_modules/
 .env
-config/*.json
-!config/example-admin.json
-!config/example.discount-config.json
 output/*
 !output/.gitkeep
