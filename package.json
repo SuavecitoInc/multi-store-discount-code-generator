@@ -1,0 +1,37 @@
+{
+  "name": "create-discount-codes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "generate": "graphql-codegen --config admin.graphqlrc.ts",
+    "setup": "tsx src/get-admin-tokens.ts",
+    "create": "tsx src/create-codes.ts",
+    "top-up": "tsx src/top-up-codes.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.2",
+    "@shopify/api-codegen-preset": "^1.1.1",
+    "@shopify/graphql-codegen": "^0.1.0",
+    "@types/node": "^18.15.3",
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.7.0",
+    "prettier": "^2.8.4",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "isomorphic-fetch": "^3.0.0",
+    "moment-timezone": "^0.5.46",
+    "node-fetch": "^3.3.2",
+    "tsx": "^4.23.12"
+  }
+}
