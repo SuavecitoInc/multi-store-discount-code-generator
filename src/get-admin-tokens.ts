@@ -1,13 +1,14 @@
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 
-import { readEnv } from './lib/utils';
+import { readEnv, loadStores } from './lib/utils';
 
 dotenv.config();
 
 interface StoreCredentials {
   label: string;
   domain: string;
+  collectionId: string;
   clientId: string;
   clientSecret: string;
 }
@@ -46,27 +47,36 @@ async function getAccessToken(store: StoreCredentials): Promise<string> {
 }
 
 async function main() {
-  const stores: StoreCredentials[] = [
-    {
-      label: 'STORE_A',
-      domain: readEnv('STORE_A_DOMAIN'),
-      clientId: readEnv('CLIENT_ID'),
-      clientSecret: readEnv('CLIENT_SECRET'),
-    },
-    {
-      label: 'STORE_B',
-      domain: readEnv('STORE_B_DOMAIN'),
-      clientId: readEnv('CLIENT_ID'),
-      clientSecret: readEnv('CLIENT_SECRET'),
-    },
-  ];
+  const clientId = readEnv('CLIENT_ID');
+  const clientSecret = readEnv('CLIENT_SECRET');
 
-  const results: Record<string, { domain: string; accessToken: string }> = {};
+  if (!clientId || !clientSecret) {
+    throw new Error(
+      'Missing CLIENT_ID or CLIENT_SECRET in environment variables.',
+    );
+  }
+
+  const stores: StoreCredentials[] = loadStores().stores.map((store) => ({
+    label: store.handle,
+    domain: `${store.handle}.myshopify.com`,
+    collectionId: store.collectionId,
+    clientId,
+    clientSecret,
+  }));
+
+  const results: Record<
+    string,
+    { domain: string; accessToken: string; collectionId: string }
+  > = {};
 
   for (const store of stores) {
     console.log(`Requesting token for ${store.label} (${store.domain})...`);
     const token = await getAccessToken(store);
-    results[store.label] = { domain: store.domain, accessToken: token };
+    results[store.label] = {
+      domain: store.domain,
+      accessToken: token,
+      collectionId: store.collectionId,
+    };
     console.log(`${store.label}: ${token}`);
   }
 
@@ -74,10 +84,7 @@ async function main() {
   fs.writeFileSync('./config/admin.json', JSON.stringify(results, null, 2));
 
   console.log(
-    "\nSaved to ./config/admin.json -- add this file to .gitignore now if you haven't.",
-  );
-  console.log(
-    'Copy these into your STORE_A_ADMIN_TOKEN / STORE_B_ADMIN_TOKEN env vars, then delete the file.',
+    '\nSaved to ./config/admin.json -- this config will be used to create discounts.',
   );
 }
 

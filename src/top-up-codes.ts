@@ -1,14 +1,8 @@
 import fs from 'fs';
 
-import {
-  USE_SINGLE_STORE,
-  STORE_A_DOMAIN,
-  STORE_B_DOMAIN,
-  STORE_A_ADMIN_TOKEN,
-  STORE_B_ADMIN_TOKEN,
-  TOP_UP_COUNT,
-  CODE_PREFIX,
-} from './lib/const';
+import admin from '../config/admin.json';
+import discountIds from '../config/discounts.json';
+import { TOP_UP_COUNT, CODE_PREFIX } from './lib/const';
 import {
   loadLedger,
   saveLedger,
@@ -16,9 +10,6 @@ import {
   addAllCodes,
   validateConfig,
 } from './lib/utils';
-
-const STORE_A_DISCOUNT_ID = process.env.STORE_A_DISCOUNT_ID!;
-const STORE_B_DISCOUNT_ID = process.env.STORE_B_DISCOUNT_ID!;
 
 async function main() {
   validateConfig();
@@ -29,22 +20,25 @@ async function main() {
   console.log(`Generating ${TOP_UP_COUNT} new codes...`);
   const newCodes = generateNewCodes(TOP_UP_COUNT, CODE_PREFIX, ledger);
 
-  console.log('Adding new codes to Store A...');
-  await addAllCodes(
-    STORE_A_DOMAIN,
-    STORE_A_ADMIN_TOKEN,
-    STORE_A_DISCOUNT_ID,
-    newCodes,
-  );
+  const stores = Object.values(admin) as {
+    domain: string;
+    accessToken: string;
+    collectionId: string;
+  }[];
 
-  if (!USE_SINGLE_STORE) {
-    console.log('Adding new codes to Store B...');
-    await addAllCodes(
-      STORE_B_DOMAIN,
-      STORE_B_ADMIN_TOKEN,
-      STORE_B_DISCOUNT_ID,
-      newCodes,
-    );
+  for (const store of stores) {
+    console.log(`Adding new codes to ${store.domain}...`);
+    // get discountId from discount-config.json
+    const discountid = discountIds[store.domain as keyof typeof discountIds];
+
+    if (!discountid) {
+      console.error(
+        `No discount ID found for ${store.domain} in discount-config.json. Skipping.`,
+      );
+      continue;
+    }
+
+    await addAllCodes(store.domain, store.accessToken, discountid, newCodes);
   }
 
   // Update the ledger only after both stores have been attempted -- if you
@@ -58,9 +52,7 @@ async function main() {
   fs.writeFileSync(csvPath, 'Coupon\n' + newCodes.join('\n'));
 
   console.log(
-    `Done. ${newCodes.length} new codes added ${
-      USE_SINGLE_STORE ? 'to Store A' : 'to both stores'
-    }.`,
+    `Done. ${newCodes.length} new codes added to ${stores.length} stores.`,
   );
   console.log(
     `Upload this file to Klaviyo's coupon feed (append, don't replace): ${csvPath}`,

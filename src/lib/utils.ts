@@ -6,22 +6,50 @@ import { bulkStatusQuery } from './admin/queries';
 import { bulkAddDiscountMutation } from './admin/mutations';
 import { API_VERSION, LEDGER_PATH, BATCH_SIZE } from './const';
 import admin from '../../config/admin.json';
-import type { AdminConfig } from './types/config';
+import type { AdminConfig, Stores } from './types/config';
 
+export function loadStores() {
+  try {
+    const raw = fs.readFileSync('./config/shopify.json', 'utf-8');
+    if (!raw) {
+      return { stores: [] };
+    }
+    const stores: Stores = JSON.parse(raw);
+    return stores;
+  } catch (err) {
+    throw new Error(`Failed to load stores.json: ${err}`);
+  }
+}
+
+// validate that the admin config has the required fields for all stores
 export function validateConfig() {
-  const requiredVars = ['domain', 'accessToken'];
+  console.log('Validating admin config...');
+  const requiredVars = ['domain', 'accessToken', 'collectionId'];
 
   const adminConfig: AdminConfig = admin;
+  // convert to array of stores for validation
+  const stores = Object.values(adminConfig) as {
+    domain: string;
+    accessToken: string;
+    collectionId: string;
+  }[];
 
-  // Check if all required variables are present in the config
-  for (const varName of requiredVars) {
-    if (
-      !adminConfig.STORE_A[varName as keyof typeof adminConfig.STORE_A] &&
-      !adminConfig.STORE_B[varName as keyof typeof adminConfig.STORE_B]
-    ) {
-      throw new Error(`Missing required config variable: ${varName}`);
+  console.log(`Found ${stores.length} stores in admin config.`);
+
+  for (const store of stores) {
+    for (const varName of requiredVars) {
+      if (!store[varName as keyof typeof store]) {
+        console.log(
+          `Store ${store.domain} is missing required config variable: ${varName}`,
+        );
+        throw new Error(
+          `Missing required config variable: ${varName} for store ${store.domain}`,
+        );
+      }
     }
   }
+
+  console.log('Admin config validation passed.');
 }
 
 export function readEnv(name: string): string {

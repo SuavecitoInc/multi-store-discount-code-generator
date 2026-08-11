@@ -25,23 +25,32 @@
    ```
 3. Create your Shopify app in the Shopify Dev Dashboard
    - Create App > Start From Dev Dashboard
-   - Install the app on both stores
-4. Set up your environment variables in a `.env` file:
+   - Install the app on all stores you want to generate discount codes for
+4. Set up your `config/shopify.json` file with your store handles and collection ids (used for generating discount codes):
+   ```json
+   {
+     "stores": [
+       {
+         "domain": "store-1",
+         "collectionId": "your_store1_collection_id"
+       }
+     ]
+   }
+   ```
+5. Set up your environment variables in a `.env` file:
    ```env
    CLIENT_ID=your_app_client_id
    CLIENT_SECRET=your_app_client_secret
-   STORE_A_DOMAIN=store-a.myshopify.com
-   STORE_B_DOMAIN=store-b.myshopify.com
    ```
-5. Rename the config files from `config/example-admin.json` to `config/admin.json` and `config/example-discount-config.json` to `config/discount-config.json`. Run the tool to generate the necessary config files:
+6. Run the setup tool to generate the necessary config files (`admin.json` and `discount-config.json`):
    ```bash
    npm run setup
    ```
-6. Run the tool to generate new discount codes:
+7. Run the tool to generate new discount codes:
    ```bash
    npm run create
    ```
-7. Run the tool to top up discount codes:
+8. Run the tool to top up discount codes:
    ```bash
    npm run top-up
    ```

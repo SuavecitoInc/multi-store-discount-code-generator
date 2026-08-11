@@ -1,8 +1,12 @@
 {
   "stores": [
     {
-      "handle": "store-1",
-      "collectionId": "gid://shopify/Collection/12345678910"
+      "handle": "suavecito",
+      "collectionId": "gid://shopify/Collection/286084694099"
+    },
+    {
+      "handle": "suavecito-canada",
+      "collectionId": "gid://shopify/Collection/324726358165"
     }
   ]
 }

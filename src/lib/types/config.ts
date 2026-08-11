@@ -1,15 +1,18 @@
+export type Stores = {
+  stores: {
+    handle: string;
+    collectionId: string;
+  }[];
+};
+
 export type AdminConfig = {
-  STORE_A: {
+  [key: string]: {
     domain: string;
     accessToken: string;
-  };
-  STORE_B: {
-    domain: string;
-    accessToken: string;
+    collectionId: string;
   };
 };
 
 export type DiscountConfig = {
-  storeADiscountId: string;
-  storeBDiscountId: string;
+  [key: string]: string;
 };
